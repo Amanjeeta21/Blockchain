@@ -13,14 +13,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Amanjeeta21/Blockchain/issues"
   },
   "homepage": "https://github.com/Amanjeeta21/Blockchain#readme",
   "dependencies": {
     "dotenv": "^18.0.10",
-    "viem": "^2.57.19"
+    "viem": "^2.57.20"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
