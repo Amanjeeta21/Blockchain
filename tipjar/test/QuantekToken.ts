@@ -6,6 +6,9 @@ import { network } from "hardhat";
 describe("QuantekToken", async function () {
   const { viem } = await network.create();
   const [deployer, user] = await viem.getWalletClients();
+  if (!deployer || !user) {
+    throw new Error("Expected deployer and user wallet clients");
+  }
 
   async function deployToken() {
     return viem.deployContract("QuantekToken");

@@ -10,6 +10,9 @@ describe("TipJar", async function () {
 
   const publicClient = await viem.getPublicClient();
   const [owner, user] = await viem.getWalletClients();
+  if (!owner || !user) {
+    throw new Error("Expected owner and user wallet clients");
+  }
 
   it("Should update the contract balance and tip count", async function () {
     const tipJar = await viem.deployContract("TipJar");

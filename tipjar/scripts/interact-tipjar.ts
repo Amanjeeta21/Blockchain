@@ -7,6 +7,9 @@ async function main() {
   });
 
   const [owner] = await viem.getWalletClients();
+  if (!owner) {
+    throw new Error("No wallet client is available");
+  }
 
   const tipJar = await viem.getContractAt(
     "TipJar",
