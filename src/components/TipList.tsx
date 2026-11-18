@@ -7,7 +7,9 @@ import {
   useBalance,
   useReadContract,
   useReadContracts,
+  useWatchContractEvent,
 } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
 import { sepolia } from "wagmi/chains";
 
 import { TIPJAR_ABI, TIPJAR_ADDRESS } from "@/lib/contracts";
@@ -41,6 +43,8 @@ function formatDate(timestamp: bigint): {
 }
 
 export default function TipList() {
+  const queryClient = useQueryClient();
+
   const {
     data: contractBalance,
     isLoading: isBalanceLoading,
@@ -93,6 +97,18 @@ export default function TipList() {
     })),
     query: {
       enabled: isCountLoaded && tipIndices.length > 0,
+    },
+  });
+
+  // Listen for new tips emitted by the TipJar smart contract.
+  useWatchContractEvent({
+    address: TIPJAR_ADDRESS,
+    abi: TIPJAR_ABI,
+    eventName: "TipSent",
+    chainId: sepolia.id,
+    onLogs() {
+      // Refresh the active contract queries whenever a new tip is detected.
+      void queryClient.invalidateQueries();
     },
   });
 
