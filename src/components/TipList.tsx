@@ -235,12 +235,12 @@ export default function TipList() {
             return (
               <article
                 className="transaction-card"
-                key={`${tip.sender}-${tip.timestamp}-${index}`}
+                key={`${tip.from}-${tip.timestamp}-${index}`}
               >
                 <div className="transaction-top">
                   <div className="transaction-identity">
                     <div className="sender-avatar">
-                      {tip.sender.slice(2, 4).toUpperCase()}
+                      {tip.from.slice(2, 4).toUpperCase()}
                     </div>
 
                     <div className="sender-details">
@@ -251,8 +251,8 @@ export default function TipList() {
                       </span>
 
                       <span className="sender-address">
-                        {tip.sender.slice(0, 8)}...
-                        {tip.sender.slice(-6)}
+                        {tip.from.slice(0, 8)}...
+                        {tip.from.slice(-6)}
                       </span>
                     </div>
                   </div>

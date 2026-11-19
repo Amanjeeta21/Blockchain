@@ -1,4 +1,3 @@
-
 import { getAddress, type Abi, type Address } from "viem";
 
 // Read and validate contract addresses from environment variables
@@ -27,7 +26,7 @@ export const TIPJAR_ABI = [
   },
   {
     type: "error",
-    name: "EmptyMessage",
+    name: "ZeroTip",
     inputs: [],
   },
   {
@@ -37,7 +36,7 @@ export const TIPJAR_ABI = [
   },
   {
     type: "error",
-    name: "ZeroTip",
+    name: "TransferFailed",
     inputs: [],
   },
   {
@@ -45,7 +44,7 @@ export const TIPJAR_ABI = [
     name: "TipSent",
     inputs: [
       {
-        name: "sender",
+        name: "from",
         type: "address",
         indexed: true,
         internalType: "address",
@@ -61,12 +60,6 @@ export const TIPJAR_ABI = [
         type: "string",
         indexed: false,
         internalType: "string",
-      },
-      {
-        name: "timestamp",
-        type: "uint256",
-        indexed: false,
-        internalType: "uint256",
       },
     ],
     anonymous: false,
@@ -107,7 +100,7 @@ export const TIPJAR_ABI = [
         internalType: "struct TipJar.Tip",
         components: [
           {
-            name: "sender",
+            name: "from",
             type: "address",
             internalType: "address",
           },
