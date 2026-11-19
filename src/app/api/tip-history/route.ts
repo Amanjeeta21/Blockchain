@@ -1,61 +1,250 @@
-
 import { NextResponse } from "next/server";
 import {
-  createPublicClient,
-  fallback,
-  http,
-  type Transport,
+  decodeEventLog,
+  keccak256,
+  stringToHex,
+  type Hex,
 } from "viem";
-import { sepolia } from "viem/chains";
 
 import {
   TIPJAR_ABI,
   TIPJAR_ADDRESS,
 } from "@/lib/contracts";
 
-const MAX_BLOCK_RANGE = 10_000n;
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
-const PUBLIC_SEPOLIA_RPC_URL =
-  "https://ethereum-sepolia-rpc.publicnode.com";
+
+// Etherscan currently returns at most 1,000 logs per request.
+// We use a smaller block window so we can reliably get the newest
+// events without depending on a huge result set.
+const INITIAL_BLOCK_WINDOW = 10_000n;
+
+const ETHERSCAN_API_URL = "https://api.etherscan.io/v2/api";
+const SEPOLIA_CHAIN_ID = "11155111";
+
+const TIP_SENT_TOPIC = keccak256(
+  stringToHex("TipSent(address,uint256,string)")
+);
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export async function GET(request: Request) {
-  const rpcUrl = process.env.SEPOLIA_RPC_URL;
+type EtherscanLog = {
+  address: string;
+  topics: string[];
+  data: string;
+  blockNumber: string;
+  blockHash: string;
+  timeStamp: string;
+  gasPrice: string;
+  gasUsed: string;
+  logIndex: string;
+  transactionHash: string;
+  transactionIndex: string;
+};
 
-  if (!rpcUrl) {
-    return NextResponse.json(
-      { error: "Server RPC is not configured. Set SEPOLIA_RPC_URL." },
-      { status: 500 },
+type EtherscanResponse = {
+  status: string;
+  message: string;
+  result: EtherscanLog[] | string;
+};
+
+type TipHistoryEvent = {
+  id: string;
+  sender: string;
+  amount: string;
+  message: string;
+  blockNumber: string;
+  transactionHash: string;
+  logIndex: number;
+};
+
+function isEtherscanLogResult(
+  result: EtherscanLog[] | string
+): result is EtherscanLog[] {
+  return Array.isArray(result);
+}
+
+function getEtherscanErrorMessage(
+  response: EtherscanResponse
+): string {
+  if (typeof response.result === "string") {
+    return response.result;
+  }
+
+  return response.message || "Unknown Etherscan API error.";
+}
+
+async function fetchEtherscanLogs(
+  fromBlock: bigint,
+  toBlock: bigint
+): Promise<EtherscanLog[]> {
+  const apiKey = process.env.ETHERSCAN_API_KEY;
+
+  if (!apiKey) {
+    throw new Error(
+      "Etherscan API key is not configured. Set ETHERSCAN_API_KEY."
     );
   }
 
-  const transportOptions = {
-    retryCount: 0,
-    timeout: 20_000,
-  };
-  let transport: Transport = http(
-    PUBLIC_SEPOLIA_RPC_URL,
-    transportOptions,
-  );
-
-  if (!rpcUrl.includes("ethereum-sepolia-rpc.publicnode.com")) {
-    transport = fallback(
-      [
-        transport,
-        http(rpcUrl, transportOptions),
-      ],
-      { retryCount: 0 },
-    );
-  }
-
-  const client = createPublicClient({
-    chain: sepolia,
-    transport,
+  const searchParams = new URLSearchParams({
+    chainid: SEPOLIA_CHAIN_ID,
+    module: "logs",
+    action: "getLogs",
+    address: TIPJAR_ADDRESS,
+    fromBlock: fromBlock.toString(),
+    toBlock: toBlock.toString(),
+    topic0: TIP_SENT_TOPIC,
+    page: "1",
+    offset: "1000",
+    apikey: apiKey,
   });
 
+  const response = await fetch(
+    `${ETHERSCAN_API_URL}?${searchParams.toString()}`,
+    {
+      method: "GET",
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Etherscan request failed with HTTP ${response.status}.`
+    );
+  }
+
+  const data =
+    (await response.json()) as EtherscanResponse;
+
+  if (
+    data.status !== "1" &&
+    !(
+      typeof data.result === "string" &&
+      /no records found/i.test(data.result)
+    )
+  ) {
+    throw new Error(getEtherscanErrorMessage(data));
+  }
+
+  if (!isEtherscanLogResult(data.result)) {
+    return [];
+  }
+
+  return data.result;
+}
+
+async function fetchLatestBlock(): Promise<bigint> {
+  const apiKey = process.env.ETHERSCAN_API_KEY;
+
+  if (!apiKey) {
+    throw new Error(
+      "Etherscan API key is not configured. Set ETHERSCAN_API_KEY."
+    );
+  }
+
+  const searchParams = new URLSearchParams({
+    chainid: SEPOLIA_CHAIN_ID,
+    module: "proxy",
+    action: "eth_blockNumber",
+    apikey: apiKey,
+  });
+
+  const response = await fetch(
+    `${ETHERSCAN_API_URL}?${searchParams.toString()}`,
+    {
+      method: "GET",
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Etherscan latest-block request failed with HTTP ${response.status}.`
+    );
+  }
+
+  const data = (await response.json()) as {
+    result?: string;
+    message?: string;
+  };
+
+  if (
+    !data.result ||
+    !/^0x[0-9a-fA-F]+$/.test(data.result)
+  ) {
+    throw new Error(
+      data.message || "Unable to retrieve the latest Sepolia block."
+    );
+  }
+
+  return BigInt(data.result);
+}
+
+function decodeTipLog(
+  log: EtherscanLog
+): TipHistoryEvent | null {
+  try {
+    const decoded = decodeEventLog({
+      abi: TIPJAR_ABI,
+      eventName: "TipSent",
+      topics: log.topics as Hex[],
+      data: log.data as Hex,
+    });
+
+    const { from, amount, message } = decoded.args;
+
+    if (
+      !from ||
+      amount === undefined ||
+      message === undefined ||
+      !log.transactionHash ||
+      !log.blockNumber ||
+      !log.logIndex
+    ) {
+      return null;
+    }
+
+    const blockNumber = BigInt(log.blockNumber);
+    const logIndex = Number(BigInt(log.logIndex));
+
+    return {
+      id: `${log.transactionHash}-${logIndex}`,
+      sender: from,
+      amount: amount.toString(),
+      message,
+      blockNumber: blockNumber.toString(),
+      transactionHash: log.transactionHash,
+      logIndex,
+    };
+  } catch (error) {
+    console.error("Failed to decode TipSent log:", {
+      transactionHash: log.transactionHash,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown decode error.",
+    });
+
+    return null;
+  }
+}
+
+function sortNewestFirst(
+  events: TipHistoryEvent[]
+): TipHistoryEvent[] {
+  return events.sort((a, b) => {
+    const blockA = BigInt(a.blockNumber);
+    const blockB = BigInt(b.blockNumber);
+
+    if (blockA > blockB) return -1;
+    if (blockA < blockB) return 1;
+
+    return b.logIndex - a.logIndex;
+  });
+}
+
+export async function GET(request: Request) {
   const searchParams = new URL(request.url).searchParams;
 
   try {
@@ -72,8 +261,10 @@ export async function GET(request: Request) {
       limit > MAX_LIMIT
     ) {
       return NextResponse.json(
-        { error: `Limit must be between 1 and ${MAX_LIMIT}.` },
-        { status: 400 },
+        {
+          error: `Limit must be between 1 and ${MAX_LIMIT}.`,
+        },
+        { status: 400 }
       );
     }
 
@@ -82,8 +273,10 @@ export async function GET(request: Request) {
       !/^\d+$/.test(toBlockValue)
     ) {
       return NextResponse.json(
-        { error: "Invalid toBlock value." },
-        { status: 400 },
+        {
+          error: "Invalid toBlock value.",
+        },
+        { status: 400 }
       );
     }
 
@@ -95,13 +288,19 @@ export async function GET(request: Request) {
       !/^\d+$/.test(deploymentBlockValue)
     ) {
       return NextResponse.json(
-        { error: "A valid TipJar deployment block is not configured." },
-        { status: 500 },
+        {
+          error:
+            "A valid TipJar deployment block is not configured.",
+        },
+        { status: 500 }
       );
     }
 
-    const deploymentBlock = BigInt(deploymentBlockValue);
-    const latestBlock = await client.getBlockNumber();
+    const deploymentBlock =
+      BigInt(deploymentBlockValue);
+
+    const latestBlock =
+      await fetchLatestBlock();
 
     let currentTo = toBlockValue
       ? BigInt(toBlockValue)
@@ -117,122 +316,176 @@ export async function GET(request: Request) {
         latestBlock: latestBlock.toString(),
         nextToBlock: null,
         hasMore: false,
+        warning: undefined,
       });
     }
 
-    const events: {
-      id: string;
-      sender: string;
-      amount: string;
-      message: string;
-      blockNumber: string;
-      transactionHash: string;
-      logIndex: number;
-    }[] = [];
+    const events: TipHistoryEvent[] = [];
 
     let nextToBlock: bigint | null = currentTo;
+    let blockWindow = INITIAL_BLOCK_WINDOW;
     let warning: string | undefined;
 
-    // Search backwards, starting with the newest blocks.
+    /*
+     * Search backwards through Etherscan-indexed logs.
+     *
+     * Unlike the old RPC implementation, this does NOT make
+     * thousands of eth_getLogs calls. Etherscan already indexes
+     * the event logs, and we query the TipJar address + TipSent
+     * event topic directly.
+     */
     while (
       events.length < limit &&
       nextToBlock !== null &&
       nextToBlock >= deploymentBlock
     ) {
-      const toBlock: bigint = nextToBlock;
+      const toBlock = nextToBlock;
 
-      const fromBlock: bigint =
-        toBlock - MAX_BLOCK_RANGE + 1n < deploymentBlock
-          ? deploymentBlock
-          : toBlock - MAX_BLOCK_RANGE + 1n;
+      let fromBlock =
+        toBlock - blockWindow + 1n;
+
+      if (fromBlock < deploymentBlock) {
+        fromBlock = deploymentBlock;
+      }
+
+      let logs: EtherscanLog[] = [];
 
       try {
-        const logs = await client.getContractEvents({
-          address: TIPJAR_ADDRESS,
-          abi: TIPJAR_ABI,
-          eventName: "TipSent",
+        logs = await fetchEtherscanLogs(
           fromBlock,
-          toBlock,
-        });
-
-        for (const log of logs) {
-          const { from, amount, message } = log.args;
-
-          if (
-            !from ||
-            amount === undefined ||
-            message === undefined ||
-            log.blockNumber === null ||
-            log.blockNumber === undefined ||
-            !log.transactionHash ||
-            log.logIndex === null ||
-            log.logIndex === undefined
-          ) {
-            continue;
-          }
-
-          events.push({
-            id: `${log.transactionHash}-${log.logIndex}`,
-            sender: from,
-            amount: amount.toString(),
-            message,
-            blockNumber: log.blockNumber.toString(),
-            transactionHash: log.transactionHash,
-            logIndex: log.logIndex,
-          });
-        }
-
-        // Continue with the next older block range.
-        nextToBlock = fromBlock - 1n;
+          toBlock
+        );
       } catch (error) {
         const errorMessage =
           error instanceof Error
             ? error.message
-            : "Unknown RPC error.";
-        const safeMessage = errorMessage
-          .split(rpcUrl)
-          .join("[configured Sepolia RPC]");
+            : "Unknown Etherscan API error.";
 
-        console.error("Tip history batch failed:", {
-          errorName:
-            error instanceof Error ? error.name : "UnknownError",
-          message: safeMessage,
+        console.error("Etherscan Tip History batch failed:", {
+          fromBlock: fromBlock.toString(),
+          toBlock: toBlock.toString(),
+          message: errorMessage,
         });
 
-        const historyIsUnavailable =
-          /pruned history unavailable|historical logs unavailable|block range.*(?:too large|limit|exceed)/i.test(
-            errorMessage,
+        const isRateLimited =
+          /429|rate.?limit|too many requests|throttl/i.test(
+            errorMessage
           );
 
-        nextToBlock = null;
-        warning = historyIsUnavailable
-          ? "The RPC providers cannot serve the full event history; only available tips are shown."
-          : "Some older tips are unavailable from the current RPC providers.";
+        return NextResponse.json(
+          {
+            error: isRateLimited
+              ? "Etherscan API is temporarily rate-limited. Please try again."
+              : `Unable to fetch Tip History from Etherscan: ${errorMessage}`,
+          },
+          {
+            status: isRateLimited ? 429 : 502,
+            ...(isRateLimited
+              ? {
+                  headers: {
+                    "Retry-After": "3",
+                  },
+                }
+              : {}),
+          }
+        );
+      }
 
+      /*
+       * Etherscan returns at most 1,000 logs per request.
+       *
+       * If we hit that limit, the block window may contain
+       * too many events. Reduce the window and retry the same
+       * range until the returned result is safely below the
+       * limit.
+       */
+      if (logs.length >= 1000 && blockWindow > 1n) {
+        blockWindow =
+          blockWindow / 2n < 1n
+            ? 1n
+            : blockWindow / 2n;
+
+        continue;
+      }
+
+      for (const log of logs) {
+        const decodedEvent =
+          decodeTipLog(log);
+
+        if (decodedEvent) {
+          events.push(decodedEvent);
+        }
+      }
+
+      /*
+       * We have enough events for this page.
+       *
+       * The cursor points to the block immediately before
+       * this range so Load More can continue with older tips.
+       */
+      if (events.length >= limit) {
+        nextToBlock = fromBlock - 1n;
         break;
       }
+
+      /*
+       * No more events in this range.
+       * Continue searching older blocks.
+       */
+      nextToBlock = fromBlock - 1n;
+
+      /*
+       * Once a range is known to contain fewer than 1,000
+       * logs, we can keep using the same window size.
+       */
     }
 
-    // Newest events first.
-    events.sort((a, b) => {
-      const blockA = BigInt(a.blockNumber);
-      const blockB = BigInt(b.blockNumber);
+    sortNewestFirst(events);
 
-      if (blockA > blockB) return -1;
-      if (blockA < blockB) return 1;
+    const pageEvents = events.slice(0, limit);
 
-      return b.logIndex - a.logIndex;
-    });
+    /*
+     * If we found more than the requested limit, the cursor
+     * should point to the oldest event that was actually
+     * returned, not merely the end of the scanned range.
+     *
+     * This lets Load More continue without skipping events.
+     */
+    let nextBlockCursor: string | null = null;
 
-    const nextBlockCursor =
-      nextToBlock !== null && nextToBlock >= deploymentBlock
-        ? nextToBlock.toString()
+    if (pageEvents.length > 0) {
+      const oldestReturnedBlock =
+        BigInt(
+          pageEvents[pageEvents.length - 1].blockNumber
+        );
+
+      const hasOlderEvents =
+        oldestReturnedBlock > deploymentBlock;
+
+      nextBlockCursor = hasOlderEvents
+        ? (oldestReturnedBlock - 1n).toString()
         : null;
-    const hasMore = nextBlockCursor !== null;
+    } else if (
+      nextToBlock !== null &&
+      nextToBlock >= deploymentBlock
+    ) {
+      nextBlockCursor = nextToBlock.toString();
+    }
+
+    const hasMore =
+      nextBlockCursor !== null;
+
+    if (
+      pageEvents.length === 0 &&
+      currentTo >= deploymentBlock
+    ) {
+      warning =
+        "No TipSent events were found in the requested history range.";
+    }
 
     return NextResponse.json(
       {
-        events,
+        events: pageEvents,
         latestBlock: latestBlock.toString(),
         nextToBlock: nextBlockCursor,
         hasMore,
@@ -242,43 +495,39 @@ export async function GET(request: Request) {
         headers: {
           "Cache-Control": "no-store",
         },
-      },
+      }
     );
   } catch (error) {
-    const errorName =
-      error instanceof Error ? error.name : "UnknownError";
-
     const errorMessage =
       error instanceof Error
         ? error.message
-        : "Unknown RPC error.";
+        : "Unknown error.";
 
-    const safeMessage = errorMessage
-      .split(rpcUrl)
-      .join("[configured Sepolia RPC]");
-
-    console.error("Tip history RPC request failed:", {
-      errorName,
-      message: safeMessage,
+    console.error("Tip History Etherscan request failed:", {
+      message: errorMessage,
     });
 
     const isRateLimited =
-      /429|too many requests|rate.?limit|throttl/i.test(
-        errorMessage,
+      /429|rate.?limit|too many requests|throttl/i.test(
+        errorMessage
       );
 
     return NextResponse.json(
       {
         error: isRateLimited
-          ? "The Sepolia RPC is temporarily rate-limited. Please try again."
-          : `Unable to fetch Tip History: ${safeMessage}`,
+          ? "Etherscan API is temporarily rate-limited. Please try again."
+          : `Unable to fetch Tip History: ${errorMessage}`,
       },
       {
         status: isRateLimited ? 429 : 502,
         ...(isRateLimited
-          ? { headers: { "Retry-After": "3" } }
+          ? {
+              headers: {
+                "Retry-After": "3",
+              },
+            }
           : {}),
-      },
+      }
     );
   }
 }
