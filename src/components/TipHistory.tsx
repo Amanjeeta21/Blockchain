@@ -167,7 +167,6 @@ export default function TipHistory() {
         response.events ?? [],
       );
 
-      // Keep the existing tips even if the next request fails.
       setEvents((previous) =>
         mergeEvents(previous, fetchedEvents),
       );
@@ -219,7 +218,13 @@ export default function TipHistory() {
           aria-label="Refresh tip history"
           title="Refresh tip history"
         >
-          <span className={isLoading ? "refresh-icon spinning" : "refresh-icon"}>
+          <span
+            className={
+              isLoading
+                ? "refresh-icon spinning"
+                : "refresh-icon"
+            }
+          >
             ↻
           </span>
         </button>
@@ -314,11 +319,7 @@ export default function TipHistory() {
                 onClick={() => void loadMoreHistory()}
                 disabled={isLoadingMore}
               >
-                {isLoadingMore ? (
-                  "Loading..."
-                ) : (
-                  "Load More"
-                )}
+                {isLoadingMore ? "Loading..." : "Load More"}
               </button>
             </div>
           )}
@@ -337,10 +338,11 @@ export default function TipHistory() {
           min-width: 0;
           box-sizing: border-box;
           margin-top: 24px;
-          padding: 24px;
-          border: 1px solid #e5e1d9;
-          border-radius: 18px;
-          background: #ffffff;
+          padding: 28px;
+          border: 1px solid var(--border);
+          border-radius: 14px;
+          background: var(--surface);
+          color: var(--foreground);
         }
 
         .history-header {
@@ -349,7 +351,7 @@ export default function TipHistory() {
           align-items: flex-start;
           gap: 20px;
           width: 100%;
-          margin-bottom: 22px;
+          margin-bottom: 24px;
         }
 
         .history-heading {
@@ -359,27 +361,27 @@ export default function TipHistory() {
         }
 
         .eyebrow {
-          margin: 0 0 6px;
-          color: #77736c;
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          text-align: left;
+          margin: 0 0 8px;
+          color: var(--muted);
+          font-family: "DM Mono", monospace;
+          font-size: 10px;
+          font-weight: 500;
+          letter-spacing: 2px;
         }
 
         h2 {
           margin: 0;
-          color: #172b4d;
-          font-size: 24px;
+          color: var(--foreground);
+          font-size: 23px;
           font-weight: 800;
-          text-align: left;
+          letter-spacing: 0.5px;
         }
 
         .subtitle {
-          margin: 7px 0 0;
-          color: #77736c;
+          margin: 8px 0 0;
+          color: var(--muted);
           font-size: 13px;
-          text-align: left;
+          line-height: 1.6;
         }
 
         .refresh-button {
@@ -387,18 +389,21 @@ export default function TipHistory() {
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          width: 38px;
-          height: 38px;
-          border: 1px solid #e5e1d9;
+          width: 40px;
+          height: 40px;
+          border: 1px solid var(--border-strong);
           border-radius: 50%;
-          background: #ffffff;
-          color: #172b4d;
+          background: var(--surface-raised);
+          color: var(--foreground);
           cursor: pointer;
-          transition: background 0.2s, transform 0.2s;
+          transition: background 0.2s ease,
+            border-color 0.2s ease,
+            transform 0.2s ease;
         }
 
         .refresh-button:hover:not(:disabled) {
-          background: #f5f3ef;
+          background: var(--surface-soft);
+          border-color: var(--accent);
           transform: rotate(30deg);
         }
 
@@ -424,17 +429,20 @@ export default function TipHistory() {
         }
 
         .state-card {
-          padding: 20px;
-          border-radius: 12px;
-          background: #f5f3ef;
-          color: #77736c;
-          font-size: 14px;
+          padding: 22px;
+          border: 1px solid var(--border);
+          border-radius: 10px;
+          background: var(--surface-raised);
+          color: var(--muted);
+          font-size: 13px;
+          line-height: 1.6;
           text-align: center;
         }
 
         .error-card {
-          color: #b42318;
-          background: #fef3f2;
+          color: #d0c5c5;
+          border-color: #554747;
+          background: #302a2a;
         }
 
         .retry-button {
@@ -442,16 +450,17 @@ export default function TipHistory() {
           margin: 12px auto 0;
           border: none;
           background: transparent;
-          color: #172b4d;
+          color: var(--foreground);
           font-weight: 700;
           cursor: pointer;
           text-decoration: underline;
+          text-underline-offset: 3px;
         }
 
         .event-list {
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 12px;
           width: 100%;
           min-width: 0;
         }
@@ -460,11 +469,18 @@ export default function TipHistory() {
           width: 100%;
           min-width: 0;
           box-sizing: border-box;
-          padding: 18px;
-          border: 1px solid #e8e4dc;
-          border-radius: 14px;
-          background: #faf9f6;
+          padding: 20px;
+          border: 1px solid var(--border);
+          border-radius: 11px;
+          background: var(--surface-raised);
           overflow: hidden;
+          transition: border-color 0.2s ease,
+            background 0.2s ease;
+        }
+
+        .event-card:hover {
+          border-color: var(--border-strong);
+          background: var(--surface-soft);
         }
 
         .event-top {
@@ -482,42 +498,47 @@ export default function TipHistory() {
 
         .label {
           display: block;
-          margin-bottom: 5px;
-          color: #8a867f;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.1em;
+          margin-bottom: 7px;
+          color: var(--muted-dark);
+          font-family: "DM Mono", monospace;
+          font-size: 9px;
+          font-weight: 500;
+          letter-spacing: 1.5px;
         }
 
         .address {
-          color: #172b4d;
-          font-family: monospace;
-          font-size: 14px;
-          font-weight: 600;
+          color: var(--foreground);
+          font-family: "DM Mono", monospace;
+          font-size: 13px;
+          font-weight: 500;
           text-decoration: none;
+          transition: color 0.2s ease;
         }
 
         .address:hover {
+          color: var(--accent-hover);
           text-decoration: underline;
+          text-underline-offset: 3px;
         }
 
         .amount {
-          color: #172b4d;
+          color: var(--foreground);
+          font-family: "DM Sans", sans-serif;
           font-size: 17px;
           font-weight: 800;
           overflow-wrap: anywhere;
         }
 
         .message {
-          margin-top: 16px;
+          margin-top: 19px;
           min-width: 0;
         }
 
         .message p {
           margin: 5px 0 0;
-          color: #4d4a45;
-          font-size: 14px;
-          line-height: 1.5;
+          color: var(--muted);
+          font-size: 13px;
+          line-height: 1.7;
           overflow-wrap: anywhere;
         }
 
@@ -527,46 +548,54 @@ export default function TipHistory() {
           align-items: center;
           flex-wrap: wrap;
           gap: 10px;
-          margin-top: 16px;
-          padding-top: 12px;
-          border-top: 1px solid #e8e4dc;
-          color: #8a867f;
-          font-family: monospace;
-          font-size: 11px;
+          margin-top: 18px;
+          padding-top: 14px;
+          border-top: 1px solid var(--border);
+          color: var(--muted-dark);
+          font-family: "DM Mono", monospace;
+          font-size: 10px;
         }
 
         .event-footer a {
-          color: #172b4d;
+          color: var(--accent);
           text-decoration: none;
-          font-weight: 600;
+          font-weight: 500;
+          transition: color 0.2s ease;
         }
 
         .event-footer a:hover {
+          color: var(--accent-hover);
           text-decoration: underline;
+          text-underline-offset: 3px;
         }
 
         .load-more-container {
           display: flex;
           justify-content: center;
-          margin-top: 22px;
+          margin-top: 24px;
         }
 
         .load-more-button {
-          min-width: 150px;
-          padding: 11px 24px;
-          border: 1px solid #172b4d;
-          border-radius: 9px;
-          background: #172b4d;
-          color: #ffffff;
-          font-size: 13px;
-          font-weight: 700;
+          min-width: 155px;
+          padding: 12px 25px;
+          border: 1px solid var(--accent);
+          border-radius: 8px;
+          background: var(--accent);
+          color: var(--background);
+          font-family: "DM Mono", monospace;
+          font-size: 10px;
+          font-weight: 500;
+          letter-spacing: 1px;
           cursor: pointer;
-          transition: background 0.2s, transform 0.2s;
+          transition: background 0.2s ease,
+            border-color 0.2s ease,
+            transform 0.2s ease;
         }
 
         .load-more-button:hover:not(:disabled) {
-          background: #263e63;
-          transform: translateY(-1px);
+          background: var(--accent-hover);
+          border-color: var(--accent-hover);
+          transform: translateY(-2px);
         }
 
         .load-more-button:disabled {
@@ -575,38 +604,69 @@ export default function TipHistory() {
         }
 
         .end-message {
-          margin: 20px 0 0;
-          color: #8a867f;
-          font-size: 12px;
+          margin: 22px 0 0;
+          color: var(--muted-dark);
+          font-family: "DM Mono", monospace;
+          font-size: 10px;
+          letter-spacing: 0.4px;
           text-align: center;
         }
 
         .warning-text,
         .error-text {
           margin: 14px 0 0;
-          font-size: 12px;
+          font-size: 11px;
+          line-height: 1.6;
           text-align: center;
         }
 
         .warning-text {
-          color: #956000;
+          color: #c1beb5;
         }
 
         .error-text {
-          color: #b42318;
+          color: #d0c5c5;
         }
 
         @media (max-width: 650px) {
           .history-section {
-            padding: 18px;
+            padding: 20px 16px;
+          }
+
+          .history-header {
+            gap: 12px;
+          }
+
+          h2 {
+            font-size: 20px;
+          }
+
+          .subtitle {
+            font-size: 12px;
           }
 
           .event-card {
-            padding: 15px;
+            padding: 16px;
           }
 
           .amount {
             font-size: 16px;
+          }
+
+          .event-footer {
+            font-size: 9px;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .spinning {
+            animation: none;
+          }
+
+          .refresh-button,
+          .event-card,
+          .load-more-button {
+            transition: none;
           }
         }
       `}</style>

@@ -100,14 +100,12 @@ export default function TipList() {
     },
   });
 
-  // Listen for new tips emitted by the TipJar smart contract.
   useWatchContractEvent({
     address: TIPJAR_ADDRESS,
     abi: TIPJAR_ABI,
     eventName: "TipSent",
     chainId: sepolia.id,
     onLogs() {
-      // Refresh the active contract queries whenever a new tip is detected.
       void queryClient.invalidateQueries();
     },
   });
@@ -245,7 +243,8 @@ export default function TipList() {
 
                     <div className="sender-details">
                       <span className="transaction-number">
-                        TIP #{(Number(tipCount) - index)
+                        TIP #
+                        {(Number(tipCount) - index)
                           .toString()
                           .padStart(2, "0")}
                       </span>
@@ -293,44 +292,47 @@ export default function TipList() {
 
       <style jsx>{`
         .tip-section {
-          max-width: 1050px;
-          margin: 28px auto 0;
-          padding: 30px;
+          grid-column: 1 / -1;
+          width: 100%;
+          max-width: none;
+          min-width: 0;
+          margin: 0 auto;
+          padding: 23px;
           overflow: hidden;
-          background: #29272f;
-          border: 1px solid #393640;
-          border-radius: 16px;
-          color: #fff;
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          color: var(--foreground);
         }
 
         .tip-section-top {
           display: flex;
           align-items: flex-start;
           justify-content: space-between;
-          gap: 20px;
-          margin-bottom: 25px;
+          gap: 16px;
+          margin-bottom: 19px;
         }
 
         .tip-eyebrow,
         .transactions-label {
-          margin: 0 0 8px;
-          color: #b9a9d9;
+          margin: 0 0 6px;
+          color: var(--muted);
           font-family: "DM Mono", monospace;
           font-size: 9px;
-          letter-spacing: 2px;
+          letter-spacing: 1.8px;
         }
 
         .tip-section-top h2 {
           margin: 0;
-          color: #fff;
-          font-size: 23px;
+          color: var(--foreground);
+          font-size: 21px;
           font-weight: 900;
-          letter-spacing: 0.5px;
+          letter-spacing: 0.3px;
         }
 
         .tip-subtitle {
-          margin: 9px 0 0;
-          color: #aaa6b2;
+          margin: 7px 0 0;
+          color: var(--muted);
           font-size: 12px;
           line-height: 1.6;
         }
@@ -338,50 +340,44 @@ export default function TipList() {
         .live-pill {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 7px;
           flex-shrink: 0;
-          padding: 9px 12px;
-          border: 1px solid #4b5b4d;
+          padding: 7px 10px;
+          border: 1px solid var(--border-strong);
           border-radius: 30px;
-          color: #b8d2bc;
+          color: var(--accent);
           font-family: "DM Mono", monospace;
           font-size: 9px;
-          letter-spacing: 1px;
+          letter-spacing: 0.8px;
         }
 
         .live-dot,
         .confirmed-pill span,
         .network-dot {
-          width: 7px;
-          height: 7px;
+          width: 6px;
+          height: 6px;
           flex-shrink: 0;
           border-radius: 50%;
-          background: #83b48d;
-          box-shadow: 0 0 9px rgba(131, 180, 141, 0.35);
+          background: var(--accent);
         }
 
         .tip-stats {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 13px;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 11px;
         }
 
         .tip-stat-card {
           min-width: 0;
-          padding: 19px 20px;
-          border: 1px solid #45414d;
-          border-radius: 11px;
-          background: #35323d;
-          transition:
-            transform 0.2s ease,
-            border-color 0.2s ease,
-            background 0.2s ease;
+          padding: 14px 16px;
+          border: 1px solid var(--border);
+          border-radius: 9px;
+          background: var(--surface-raised);
+          transition: border-color 0.2s ease;
         }
 
         .tip-stat-card:hover {
-          transform: translateY(-3px);
-          border-color: #7965a8;
-          background: #3b3744;
+          border-color: var(--border-strong);
         }
 
         .stat-top {
@@ -391,52 +387,52 @@ export default function TipList() {
         }
 
         .stat-label {
-          color: #b9a9d9;
+          color: var(--muted);
           font-family: "DM Mono", monospace;
           font-size: 9px;
-          letter-spacing: 1.5px;
+          letter-spacing: 1.3px;
         }
 
         .stat-icon {
           display: grid;
-          width: 29px;
-          height: 29px;
+          width: 26px;
+          height: 26px;
           place-items: center;
-          border-radius: 8px;
-          background: #494354;
-          color: #c9bce1;
-          font-size: 17px;
+          border-radius: 7px;
+          background: var(--surface-soft);
+          color: var(--accent);
+          font-size: 16px;
         }
 
         .eth-icon {
-          font-size: 21px;
+          font-size: 19px;
         }
 
         .stat-value {
-          margin-top: 17px;
-          color: #fff;
-          font-size: 34px;
+          margin-top: 12px;
+          color: var(--foreground);
+          font-size: 29px;
           font-weight: 800;
-          letter-spacing: -1.5px;
+          letter-spacing: -1px;
           line-height: 1.2;
           overflow-wrap: anywhere;
         }
 
         .balance-value {
-          font-size: clamp(22px, 3vw, 31px);
-          letter-spacing: -1px;
+          font-size: clamp(21px, 3vw, 27px);
+          letter-spacing: -0.7px;
         }
 
         .stat-currency {
-          color: #c4b7dc;
-          font-size: 13px;
+          color: var(--muted);
+          font-size: 12px;
           letter-spacing: 0;
         }
 
         .stat-caption {
           display: block;
-          margin-top: 7px;
-          color: #aaa6b2;
+          margin-top: 5px;
+          color: var(--muted);
           font-size: 10px;
         }
 
@@ -445,49 +441,54 @@ export default function TipList() {
           align-items: end;
           justify-content: space-between;
           gap: 12px;
-          margin: 30px 0 14px;
+          margin: 23px 0 12px;
         }
 
         .transactions-label {
-          margin-bottom: 6px;
+          margin-bottom: 5px;
         }
 
         .transactions-heading h3 {
           margin: 0;
-          color: #fff;
-          font-size: 13px;
+          color: var(--foreground);
+          font-size: 12px;
           font-weight: 800;
           letter-spacing: 0.7px;
         }
 
         .records-count {
-          color: #aaa6b2;
+          color: var(--muted);
           font-family: "DM Mono", monospace;
           font-size: 9px;
-          letter-spacing: 1px;
+          letter-spacing: 0.8px;
         }
 
         .transactions-list {
           display: grid;
-          gap: 11px;
+          grid-template-columns: repeat(
+            auto-fit,
+            minmax(min(100%, 270px), 1fr)
+          );
+          gap: 12px;
+          align-items: stretch;
         }
 
         .transaction-card {
+          display: flex;
           min-width: 0;
-          padding: 19px 20px 15px;
-          border: 1px solid #48444f;
-          border-radius: 11px;
-          background: #35323d;
+          flex-direction: column;
+          padding: 15px 16px 13px;
+          border: 1px solid var(--border);
+          border-radius: 9px;
+          background: var(--surface-raised);
           transition:
-            transform 0.2s ease,
             border-color 0.2s ease,
-            background 0.2s ease;
+            transform 0.2s ease;
         }
 
         .transaction-card:hover {
+          border-color: var(--border-strong);
           transform: translateY(-2px);
-          border-color: #7965a8;
-          background: #3c3845;
         }
 
         .transaction-top,
@@ -499,47 +500,47 @@ export default function TipList() {
 
         .transaction-top {
           justify-content: space-between;
-          gap: 12px;
+          gap: 10px;
         }
 
         .transaction-identity {
           min-width: 0;
-          gap: 12px;
+          gap: 10px;
         }
 
         .sender-avatar {
           display: grid;
-          width: 39px;
-          height: 39px;
+          width: 34px;
+          height: 34px;
           flex-shrink: 0;
           place-items: center;
-          border: 1px solid #6c5b87;
-          border-radius: 10px;
-          background: #494354;
-          color: #d4c6ec;
+          border: 1px solid var(--border-strong);
+          border-radius: 8px;
+          background: var(--surface-soft);
+          color: var(--accent);
           font-family: "DM Mono", monospace;
-          font-size: 12px;
+          font-size: 11px;
         }
 
         .sender-details {
           display: flex;
           min-width: 0;
           flex-direction: column;
-          gap: 5px;
+          gap: 4px;
         }
 
         .transaction-number {
-          color: #c4b5df;
+          color: var(--accent);
           font-family: "DM Mono", monospace;
           font-size: 9px;
-          letter-spacing: 1px;
+          letter-spacing: 0.8px;
         }
 
         .sender-address {
           overflow: hidden;
-          color: #d4d0da;
+          color: var(--foreground);
           font-family: "DM Mono", monospace;
-          font-size: 11px;
+          font-size: 10px;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
@@ -549,13 +550,13 @@ export default function TipList() {
           align-items: center;
           gap: 6px;
           flex-shrink: 0;
-          padding: 6px 9px;
-          border: 1px solid #4b604f;
+          padding: 5px 8px;
+          border: 1px solid var(--border-strong);
           border-radius: 20px;
-          color: #b8d2bc;
+          color: var(--muted);
           font-family: "DM Mono", monospace;
           font-size: 8px;
-          letter-spacing: 0.7px;
+          letter-spacing: 0.6px;
         }
 
         .confirmed-pill span {
@@ -564,63 +565,65 @@ export default function TipList() {
         }
 
         .transaction-amount {
-          margin: 21px 0 15px;
-          color: #fff;
-          font-size: 27px;
+          margin: 14px 0 11px;
+          color: var(--foreground);
+          font-size: 24px;
           font-weight: 800;
-          letter-spacing: -0.7px;
+          letter-spacing: -0.5px;
         }
 
         .transaction-amount span {
-          color: #c4b7dc;
-          font-size: 12px;
+          color: var(--muted);
+          font-size: 11px;
           font-weight: 500;
           letter-spacing: 0;
         }
 
         .transaction-message {
           display: flex;
+          flex: 1;
           align-items: flex-start;
-          gap: 10px;
+          gap: 8px;
           min-width: 0;
-          padding: 13px 14px;
-          border-radius: 8px;
-          background: #2d2a34;
+          padding: 10px 12px;
+          border: 1px solid var(--border);
+          border-radius: 7px;
+          background: var(--surface);
         }
 
         .message-mark {
-          color: #a994cc;
+          color: var(--muted-dark);
           font-family: Georgia, serif;
-          font-size: 30px;
+          font-size: 25px;
           line-height: 0.9;
         }
 
         .transaction-message p {
           min-width: 0;
           margin: 2px 0 0;
-          color: #d2ced8;
-          font-size: 12px;
-          line-height: 1.7;
+          color: var(--muted);
+          font-size: 11px;
+          line-height: 1.6;
           overflow-wrap: anywhere;
         }
 
         .transaction-footer {
           justify-content: space-between;
           gap: 10px;
-          margin-top: 15px;
+          margin-top: 11px;
         }
 
         .transaction-date,
         .transaction-network {
-          color: #aaa6b2;
+          color: var(--muted);
           font-family: "DM Mono", monospace;
           font-size: 9px;
-          letter-spacing: 0.5px;
+          letter-spacing: 0.4px;
         }
 
         .date-separator {
           padding: 0 7px;
-          color: #7965a8;
+          color: var(--muted-dark);
         }
 
         .transaction-network {
@@ -638,57 +641,57 @@ export default function TipList() {
 
         .tip-state {
           display: flex;
-          min-height: 155px;
+          min-height: 125px;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 9px;
-          padding: 25px 15px;
-          border: 1px dashed #514b5d;
-          border-radius: 11px;
-          color: #d4cedf;
+          gap: 8px;
+          padding: 20px 15px;
+          border: 1px dashed var(--border-strong);
+          border-radius: 9px;
+          color: var(--foreground);
           text-align: center;
         }
 
         .tip-state strong {
           font-size: 11px;
-          letter-spacing: 1px;
+          letter-spacing: 0.8px;
         }
 
         .tip-state p {
           max-width: 100%;
           margin: 0;
-          color: #aaa6b2;
+          color: var(--muted);
           font-size: 11px;
           line-height: 1.6;
           overflow-wrap: anywhere;
         }
 
         .empty-icon {
-          color: #b9a9d9;
-          font-size: 35px;
+          color: var(--accent);
+          font-size: 31px;
         }
 
         .state-icon {
           display: grid;
-          width: 29px;
-          height: 29px;
+          width: 27px;
+          height: 27px;
           place-items: center;
           border-radius: 50%;
-          background: #5b3838;
-          color: #f1b2b2;
+          background: var(--surface-soft);
+          color: var(--danger);
           font-weight: 800;
         }
 
         .tip-error {
-          color: #f1b2b2;
+          color: var(--danger);
         }
 
         .tip-spinner {
-          width: 23px;
-          height: 23px;
-          border: 2px solid #514b5d;
-          border-top-color: #b9a9d9;
+          width: 22px;
+          height: 22px;
+          border: 2px solid var(--border);
+          border-top-color: var(--accent);
           border-radius: 50%;
           animation: tip-spin 0.8s linear infinite;
         }
@@ -701,13 +704,12 @@ export default function TipList() {
 
         @media (max-width: 650px) {
           .tip-section {
-            padding: 22px 17px;
-            margin-top: 22px;
+            padding: 19px 15px;
           }
 
           .tip-section-top {
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
           }
 
           .tip-stats {
@@ -715,11 +717,15 @@ export default function TipList() {
           }
 
           .stat-value {
-            font-size: 30px;
+            font-size: 27px;
+          }
+
+          .transactions-list {
+            grid-template-columns: 1fr;
           }
 
           .transaction-card {
-            padding: 16px 14px 13px;
+            padding: 14px 12px 12px;
           }
 
           .transaction-footer {
@@ -728,7 +734,7 @@ export default function TipList() {
           }
 
           .transaction-amount {
-            font-size: 24px;
+            font-size: 22px;
           }
         }
 

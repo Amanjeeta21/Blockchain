@@ -1,3 +1,4 @@
+
 "use client";
 
 import { formatEther } from "viem";
@@ -6,6 +7,7 @@ import { sepolia } from "wagmi/chains";
 
 export default function WalletOverview() {
   const { address, isConnected } = useAccount();
+
   const { data: balance, isLoading: isBalanceLoading } =
     useBalance({
       address,
@@ -40,6 +42,7 @@ export default function WalletOverview() {
               strokeWidth="1.5"
               width="25"
               height="25"
+              aria-hidden="true"
             >
               <rect
                 x="3"
@@ -78,7 +81,7 @@ export default function WalletOverview() {
           <div>
             <p className="card-label">AVAILABLE BALANCE</p>
 
-            <div className="balance">
+            <div className="balance" aria-live="polite">
               {isConnected
                 ? isBalanceLoading
                   ? "Loading..."
@@ -88,12 +91,16 @@ export default function WalletOverview() {
             </div>
           </div>
 
-          <div className="eth-symbol">Ξ</div>
+          <div className="eth-symbol" aria-hidden="true">
+            Ξ
+          </div>
         </div>
 
         <div className="card-footer">
           <span>NETWORK</span>
-          <span className="network-name">ETHEREUM SEPOLIA</span>
+          <span className="network-name">
+            ETHEREUM SEPOLIA
+          </span>
         </div>
       </div>
     </>

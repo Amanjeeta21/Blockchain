@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -10,6 +11,7 @@ import { sepolia } from "wagmi/chains";
 export default function NetworkStatus() {
   const { isConnected } = useAccount();
   const chainId = useChainId();
+
   const { switchChain, isPending: isSwitching } =
     useSwitchChain();
 
@@ -24,7 +26,9 @@ export default function NetworkStatus() {
           <h3>NETWORK STATUS</h3>
         </div>
 
-        <div className="network-symbol">◎</div>
+        <div className="network-symbol" aria-hidden="true">
+          ◎
+        </div>
       </div>
 
       {!isConnected ? (
@@ -33,7 +37,9 @@ export default function NetworkStatus() {
 
           <div>
             <strong>WALLET NOT CONNECTED</strong>
-            <p>Connect your wallet to access the dashboard.</p>
+            <p>
+              Connect your wallet to access the dashboard.
+            </p>
           </div>
         </div>
       ) : isWrongNetwork ? (

@@ -116,19 +116,23 @@ async function fetchEtherscanLogs(
 
   const data =
     (await response.json()) as EtherscanResponse;
+  const noRecordsFound =
+    /no records found/i.test(data.message) ||
+    (typeof data.result === "string" &&
+      /no records found/i.test(data.result));
 
-  if (
-    data.status !== "1" &&
-    !(
-      typeof data.result === "string" &&
-      /no records found/i.test(data.result)
-    )
-  ) {
+  if (noRecordsFound) {
+    return [];
+  }
+
+  if (data.status !== "1") {
     throw new Error(getEtherscanErrorMessage(data));
   }
 
   if (!isEtherscanLogResult(data.result)) {
-    return [];
+    throw new Error(
+      "Etherscan returned an invalid log response."
+    );
   }
 
   return data.result;
@@ -185,10 +189,29 @@ function decodeTipLog(
   log: EtherscanLog
 ): TipHistoryEvent | null {
   try {
+    const topics = log.topics.map((topic) => {
+      if (!/^0x[0-9a-fA-F]{64}$/.test(topic)) {
+        throw new Error("Etherscan returned an invalid log topic.");
+      }
+
+      return topic as Hex;
+    });
+
+    const [signature, ...indexedTopics] = topics;
+
+    if (!signature || signature !== TIP_SENT_TOPIC) {
+      return null;
+    }
+
+    const eventTopics: [Hex, ...Hex[]] = [
+      signature,
+      ...indexedTopics,
+    ];
+
     const decoded = decodeEventLog({
       abi: TIPJAR_ABI,
       eventName: "TipSent",
-      topics: log.topics as Hex[],
+      topics: eventTopics,
       data: log.data as Hex,
     });
 
@@ -200,13 +223,19 @@ function decodeTipLog(
       message === undefined ||
       !log.transactionHash ||
       !log.blockNumber ||
-      !log.logIndex
+      log.logIndex === ""
     ) {
       return null;
     }
 
     const blockNumber = BigInt(log.blockNumber);
-    const logIndex = Number(BigInt(log.logIndex));
+    const logIndexValue = BigInt(log.logIndex);
+
+    if (logIndexValue > BigInt(Number.MAX_SAFE_INTEGER)) {
+      return null;
+    }
+
+    const logIndex = Number(logIndexValue);
 
     return {
       id: `${log.transactionHash}-${logIndex}`,
@@ -251,11 +280,13 @@ export async function GET(request: Request) {
     const limitValue = searchParams.get("limit");
     const toBlockValue = searchParams.get("toBlock");
 
-    const limit = limitValue
-      ? Number(limitValue)
-      : DEFAULT_LIMIT;
+    const limit =
+      limitValue === null
+        ? DEFAULT_LIMIT
+        : Number(limitValue);
 
     if (
+      (limitValue !== null && !/^\d+$/.test(limitValue)) ||
       !Number.isInteger(limit) ||
       limit < 1 ||
       limit > MAX_LIMIT
@@ -299,6 +330,16 @@ export async function GET(request: Request) {
     const deploymentBlock =
       BigInt(deploymentBlockValue);
 
+    if (!process.env.ETHERSCAN_API_KEY) {
+      return NextResponse.json(
+        {
+          error:
+            "Etherscan API key is not configured. Set ETHERSCAN_API_KEY.",
+        },
+        { status: 500 }
+      );
+    }
+
     const latestBlock =
       await fetchLatestBlock();
 
@@ -339,9 +380,9 @@ export async function GET(request: Request) {
       nextToBlock !== null &&
       nextToBlock >= deploymentBlock
     ) {
-      const toBlock = nextToBlock;
+      const toBlock: bigint = nextToBlock;
 
-      let fromBlock =
+      let fromBlock: bigint =
         toBlock - blockWindow + 1n;
 
       if (fromBlock < deploymentBlock) {
@@ -443,6 +484,26 @@ export async function GET(request: Request) {
     sortNewestFirst(events);
 
     const pageEvents = events.slice(0, limit);
+    const oldestPageEvent =
+      pageEvents[pageEvents.length - 1];
+
+    if (oldestPageEvent) {
+      let nextEventIndex = pageEvents.length;
+
+      while (nextEventIndex < events.length) {
+        const nextEvent = events[nextEventIndex];
+
+        if (
+          !nextEvent ||
+          nextEvent.blockNumber !== oldestPageEvent.blockNumber
+        ) {
+          break;
+        }
+
+        pageEvents.push(nextEvent);
+        nextEventIndex += 1;
+      }
+    }
 
     /*
      * If we found more than the requested limit, the cursor
@@ -453,11 +514,12 @@ export async function GET(request: Request) {
      */
     let nextBlockCursor: string | null = null;
 
-    if (pageEvents.length > 0) {
+    const oldestReturnedEvent =
+      pageEvents[pageEvents.length - 1];
+
+    if (oldestReturnedEvent) {
       const oldestReturnedBlock =
-        BigInt(
-          pageEvents[pageEvents.length - 1].blockNumber
-        );
+        BigInt(oldestReturnedEvent.blockNumber);
 
       const hasOlderEvents =
         oldestReturnedBlock > deploymentBlock;

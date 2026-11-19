@@ -246,10 +246,12 @@ export default function TipForm() {
             width: 100%;
             max-width: 1050px;
             margin: 22px auto;
-            padding: 30px;
-            background: #ffffff;
-            border: 1px solid #d5d3db;
+            padding: 28px;
+            box-sizing: border-box;
+            background: var(--surface);
+            border: 1px solid var(--border);
             border-radius: 14px;
+            color: var(--foreground);
           }
 
           .tip-form-heading {
@@ -258,16 +260,16 @@ export default function TipForm() {
 
           .tip-form-eyebrow {
             margin: 0 0 9px;
-            color: #70569d;
+            color: var(--muted);
             font-family: "DM Mono", monospace;
             font-size: 10px;
             letter-spacing: 1.8px;
-            font-weight: 600;
+            font-weight: 500;
           }
 
           .tip-form-heading h2 {
             margin: 0;
-            color: #242329;
+            color: var(--foreground);
             font-size: 19px;
             font-weight: 800;
             letter-spacing: 0.5px;
@@ -275,8 +277,9 @@ export default function TipForm() {
 
           .tip-form-heading > p:last-child {
             margin: 8px 0 0;
-            color: #77737e;
+            color: var(--muted);
             font-size: 13px;
+            line-height: 1.6;
           }
 
           .tip-form {
@@ -292,26 +295,28 @@ export default function TipForm() {
           }
 
           .tip-form-field label {
-            color: #55535d;
+            color: var(--muted);
             font-family: "DM Mono", monospace;
             font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 1px;
+            font-weight: 500;
+            letter-spacing: 1.2px;
           }
 
           .tip-form-field textarea,
           .tip-form-field input {
             width: 100%;
             box-sizing: border-box;
-            border: 1px solid #d5d3db;
+            border: 1px solid var(--border-strong);
             border-radius: 8px;
-            background: #faf9fb;
-            color: #29272f;
+            background: var(--surface-raised);
+            color: var(--foreground);
             padding: 13px 14px;
             font-family: "DM Sans", sans-serif;
             font-size: 13px;
             outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: border-color 0.2s ease,
+              box-shadow 0.2s ease,
+              background 0.2s ease;
           }
 
           .tip-form-field textarea {
@@ -321,18 +326,19 @@ export default function TipForm() {
 
           .tip-form-field textarea:focus,
           .tip-form-field input:focus {
-            border-color: #70569d;
-            box-shadow: 0 0 0 3px rgba(112, 86, 157, 0.1);
+            border-color: var(--accent);
+            background: var(--surface-soft);
+            box-shadow: 0 0 0 3px rgba(194, 197, 191, 0.08);
           }
 
           .tip-form-field textarea::placeholder,
           .tip-form-field input::placeholder {
-            color: #aaa6b1;
+            color: var(--muted-dark);
           }
 
           .tip-form-character-count {
             align-self: flex-end;
-            color: #88838e;
+            color: var(--muted-dark);
             font-family: "DM Mono", monospace;
             font-size: 10px;
           }
@@ -340,16 +346,17 @@ export default function TipForm() {
           .tip-form-amount-wrapper {
             display: flex;
             align-items: center;
-            border: 1px solid #d5d3db;
+            border: 1px solid var(--border-strong);
             border-radius: 8px;
-            background: #faf9fb;
+            background: var(--surface-raised);
             padding-right: 14px;
-            transition: border-color 0.2s ease;
+            transition: border-color 0.2s ease,
+              box-shadow 0.2s ease;
           }
 
           .tip-form-amount-wrapper:focus-within {
-            border-color: #70569d;
-            box-shadow: 0 0 0 3px rgba(112, 86, 157, 0.1);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(194, 197, 191, 0.08);
           }
 
           .tip-form-amount-wrapper input {
@@ -360,58 +367,66 @@ export default function TipForm() {
 
           .tip-form-amount-wrapper input:focus {
             box-shadow: none;
+            background: transparent;
           }
 
           .tip-form-amount-wrapper span {
-            color: #59427f;
+            color: var(--accent);
             font-family: "DM Mono", monospace;
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 1px;
           }
 
           .tip-form-validation {
             margin: 0;
-            color: #a63d3d;
+            color: #c1b5b5;
             font-size: 11px;
           }
 
           .tip-form-submit {
             width: 100%;
             min-height: 48px;
-            border: 1px solid #59427f;
+            border: 1px solid var(--accent);
             border-radius: 8px;
-            background: #59427f;
-            color: #ffffff;
+            background: var(--accent);
+            color: var(--background);
             font-family: "DM Mono", monospace;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1.2px;
             cursor: pointer;
-            transition: background 0.2s ease, transform 0.2s ease;
+            transition: background 0.2s ease,
+              border-color 0.2s ease,
+              transform 0.2s ease;
           }
 
           .tip-form-submit:hover:not(:disabled) {
-            background: #463365;
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
             transform: translateY(-2px);
           }
 
           .tip-form-submit:disabled {
-            opacity: 0.45;
+            opacity: 0.4;
             cursor: not-allowed;
           }
 
           .tip-form-notice {
             margin-bottom: 18px;
-            padding: 12px 14px;
-            border-radius: 7px;
-            background: #f1eef7;
-            color: #59427f;
+            padding: 13px 15px;
+            border: 1px solid var(--border-strong);
+            border-radius: 8px;
+            background: var(--surface-raised);
+            color: var(--muted);
             font-size: 12px;
+            line-height: 1.6;
           }
 
           .tip-form-warning {
-            background: #fff4e6;
-            color: #98601e;
+            background: #343331;
+            border-color: #56534c;
+            color: #c5c0b5;
           }
 
           .tip-transaction-status {
@@ -425,63 +440,65 @@ export default function TipForm() {
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            color: #55535d;
+            color: var(--muted);
             font-size: 12px;
-            line-height: 1.6;
+            line-height: 1.7;
           }
 
           .tip-status-dot {
             width: 8px;
             height: 8px;
             flex-shrink: 0;
-            margin-top: 4px;
+            margin-top: 5px;
             border-radius: 50%;
-            background: #b18a43;
+            background: #b4b1a9;
           }
 
           .tip-status-dot.success {
-            background: #47745b;
+            background: #c2c5bf;
           }
 
           .tip-status-dot.error {
-            background: #b44747;
+            background: #c1b5b5;
           }
 
           .tip-status-success {
-            color: #47745b;
+            color: #c2c5bf;
           }
 
           .tip-status-error {
-            color: #a63d3d;
+            color: #d0c5c5;
           }
 
           .tip-transaction-link {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            padding: 13px;
-            border: 1px solid #e8e6eb;
+            gap: 7px;
+            padding: 14px;
+            border: 1px solid var(--border);
             border-radius: 8px;
-            background: #faf9fb;
+            background: var(--surface-raised);
           }
 
           .tip-transaction-link span {
-            color: #88838e;
+            color: var(--muted-dark);
             font-family: "DM Mono", monospace;
             font-size: 9px;
-            letter-spacing: 1px;
+            letter-spacing: 1.2px;
           }
 
           .tip-transaction-link a {
             width: fit-content;
-            color: #59427f;
+            color: var(--accent);
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 600;
             text-decoration: none;
           }
 
           .tip-transaction-link a:hover {
+            color: var(--accent-hover);
             text-decoration: underline;
+            text-underline-offset: 3px;
           }
 
           @media (max-width: 650px) {
@@ -509,7 +526,6 @@ function WithdrawSection() {
 
   const isSepolia = chainId === sepolia.id;
 
-  // Read the actual owner address from the deployed contract.
   const {
     data: owner,
     isLoading: isOwnerLoading,
@@ -524,7 +540,6 @@ function WithdrawSection() {
     },
   });
 
-  // Compare wallet address and contract owner address.
   const isOwner = Boolean(
     address &&
     owner &&
@@ -554,7 +569,6 @@ function WithdrawSection() {
 
   const refreshedWithdrawal = useRef<string | undefined>(undefined);
 
-  // Refresh contract data after a successful withdrawal.
   useEffect(() => {
     if (
       withdrawHash &&
@@ -603,7 +617,6 @@ function WithdrawSection() {
     });
   }
 
-  // Do not render the owner controls for other accounts.
   if (!isConnected || !isOwner) {
     return null;
   }
@@ -723,10 +736,12 @@ function WithdrawSection() {
           width: 100%;
           max-width: 1050px;
           margin: 22px auto;
-          padding: 30px;
-          background: #ffffff;
-          border: 1px solid #d5d3db;
+          padding: 28px;
+          box-sizing: border-box;
+          background: var(--surface);
+          border: 1px solid var(--border);
           border-radius: 14px;
+          color: var(--foreground);
         }
 
         .withdraw-heading {
@@ -735,16 +750,16 @@ function WithdrawSection() {
 
         .withdraw-eyebrow {
           margin: 0 0 9px;
-          color: #70569d;
+          color: var(--muted);
           font-family: "DM Mono", monospace;
           font-size: 10px;
           letter-spacing: 1.8px;
-          font-weight: 600;
+          font-weight: 500;
         }
 
         .withdraw-heading h2 {
           margin: 0;
-          color: #242329;
+          color: var(--foreground);
           font-size: 19px;
           font-weight: 800;
           letter-spacing: 0.5px;
@@ -752,8 +767,9 @@ function WithdrawSection() {
 
         .withdraw-heading > p:last-child {
           margin: 8px 0 0;
-          color: #77737e;
+          color: var(--muted);
           font-size: 13px;
+          line-height: 1.6;
         }
 
         .owner-notice {
@@ -761,13 +777,14 @@ function WithdrawSection() {
           align-items: center;
           gap: 9px;
           margin-bottom: 18px;
-          padding: 12px 14px;
-          border-radius: 7px;
-          background: #f0f3f0;
-          color: #47745b;
+          padding: 13px 14px;
+          border: 1px solid var(--border-strong);
+          border-radius: 8px;
+          background: var(--surface-raised);
+          color: var(--foreground);
           font-family: "DM Mono", monospace;
           font-size: 10px;
-          font-weight: 600;
+          font-weight: 500;
           letter-spacing: 1px;
         }
 
@@ -775,16 +792,18 @@ function WithdrawSection() {
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: #47745b;
+          background: var(--accent);
         }
 
         .withdraw-warning {
           margin-bottom: 15px;
-          padding: 12px 14px;
-          border-radius: 7px;
-          background: #fff4e6;
-          color: #98601e;
+          padding: 13px 14px;
+          border: 1px solid #56534c;
+          border-radius: 8px;
+          background: #343331;
+          color: #c5c0b5;
           font-size: 12px;
+          line-height: 1.6;
         }
 
         .withdraw-info,
@@ -793,32 +812,39 @@ function WithdrawSection() {
           line-height: 1.6;
         }
 
+        .withdraw-info {
+          color: var(--muted);
+        }
+
         .withdraw-error {
-          color: #a63d3d;
+          color: #d0c5c5;
         }
 
         .withdraw-button {
           width: 100%;
           min-height: 48px;
-          border: 1px solid #59427f;
+          border: 1px solid var(--accent);
           border-radius: 8px;
-          background: #59427f;
-          color: #ffffff;
+          background: var(--accent);
+          color: var(--background);
           font-family: "DM Mono", monospace;
-          font-size: 11px;
-          font-weight: 700;
+          font-size: 10px;
+          font-weight: 500;
           letter-spacing: 1px;
           cursor: pointer;
-          transition: background 0.2s ease, transform 0.2s ease;
+          transition: background 0.2s ease,
+            border-color 0.2s ease,
+            transform 0.2s ease;
         }
 
         .withdraw-button:hover:not(:disabled) {
-          background: #463365;
+          background: var(--accent-hover);
+          border-color: var(--accent-hover);
           transform: translateY(-2px);
         }
 
         .withdraw-button:disabled {
-          opacity: 0.45;
+          opacity: 0.4;
           cursor: not-allowed;
         }
 
@@ -833,83 +859,86 @@ function WithdrawSection() {
           display: flex;
           align-items: flex-start;
           gap: 10px;
-          color: #55535d;
+          color: var(--muted);
           font-size: 12px;
-          line-height: 1.6;
+          line-height: 1.7;
         }
 
         .withdraw-status-message.success {
-          color: #47745b;
+          color: var(--foreground);
         }
 
         .withdraw-status-message.error {
-          color: #a63d3d;
+          color: #d0c5c5;
         }
 
         .withdraw-status-dot {
           width: 8px;
           height: 8px;
           flex-shrink: 0;
-          margin-top: 4px;
+          margin-top: 5px;
           border-radius: 50%;
-          background: #b18a43;
+          background: #b4b1a9;
         }
 
         .withdraw-status-dot.success {
-          background: #47745b;
+          background: var(--accent);
         }
 
         .withdraw-status-dot.error {
-          background: #b44747;
+          background: #c1b5b5;
         }
 
         .withdraw-transaction-link {
           display: flex;
           flex-direction: column;
-          gap: 6px;
-          padding: 13px;
-          border: 1px solid #e8e6eb;
+          gap: 7px;
+          padding: 14px;
+          border: 1px solid var(--border);
           border-radius: 8px;
-          background: #faf9fb;
+          background: var(--surface-raised);
         }
 
         .withdraw-transaction-link span {
-          color: #88838e;
+          color: var(--muted-dark);
           font-family: "DM Mono", monospace;
           font-size: 9px;
-          letter-spacing: 1px;
+          letter-spacing: 1.2px;
         }
 
         .withdraw-transaction-link a {
           width: fit-content;
-          color: #59427f;
+          color: var(--accent);
           font-size: 12px;
-          font-weight: 700;
+          font-weight: 600;
           text-decoration: none;
         }
 
         .withdraw-transaction-link a:hover {
+          color: var(--accent-hover);
           text-decoration: underline;
+          text-underline-offset: 3px;
         }
 
         .withdraw-security-note {
           margin-top: 22px;
           padding: 15px;
-          border: 1px solid #e8e6eb;
+          border: 1px solid var(--border);
           border-radius: 8px;
-          background: #faf9fb;
+          background: var(--surface-raised);
         }
 
         .withdraw-security-note strong {
-          color: #59427f;
+          color: var(--accent);
           font-family: "DM Mono", monospace;
           font-size: 9px;
-          letter-spacing: 1px;
+          letter-spacing: 1.2px;
+          font-weight: 500;
         }
 
         .withdraw-security-note p {
           margin: 7px 0 0;
-          color: #77737e;
+          color: var(--muted);
           font-size: 11px;
           line-height: 1.7;
         }

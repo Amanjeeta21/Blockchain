@@ -1,3 +1,4 @@
+
 "use client";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -7,16 +8,18 @@ export default function Navbar() {
     <header className="navbar">
       <a href="/" className="brand">
         <span className="brand-icon">T</span>
-        <span>
+
+        <span className="brand-name">
           TIPJAR<span className="brand-dot">.</span>
         </span>
       </a>
 
       <div className="nav-right">
-        <span className="network-label">
+        <div className="network-label">
           <span className="status-dot" />
-          SEPOLIA TESTNET
-        </span>
+          <span>SEPOLIA TESTNET</span>
+        </div>
+
         <ConnectButton />
       </div>
     </header>

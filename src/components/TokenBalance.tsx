@@ -100,9 +100,10 @@ export default function TokenBalance() {
           max-width: 1050px;
           margin: 18px auto;
           padding: 24px 28px;
-          border: 1px solid #e4e2e8;
-          border-radius: 14px;
-          background: #fff;
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          background: var(--surface);
+          color: var(--foreground);
         }
 
         .token-balance-heading {
@@ -114,7 +115,7 @@ export default function TokenBalance() {
 
         .token-balance-eyebrow {
           margin: 0 0 7px;
-          color: #8a8494;
+          color: var(--muted);
           font-family: "DM Mono", monospace;
           font-size: 9px;
           letter-spacing: 2px;
@@ -122,7 +123,7 @@ export default function TokenBalance() {
 
         .token-balance-heading h2 {
           margin: 0;
-          color: #202024;
+          color: var(--foreground);
           font-size: 16px;
           font-weight: 800;
           letter-spacing: 0.5px;
@@ -130,9 +131,10 @@ export default function TokenBalance() {
 
         .token-balance-network {
           padding: 7px 10px;
-          border: 1px solid #ded7ea;
+          border: 1px solid var(--border-strong);
           border-radius: 20px;
-          color: #70569d;
+          background: var(--surface-raised);
+          color: var(--accent);
           font-family: "DM Mono", monospace;
           font-size: 9px;
           letter-spacing: 1px;
@@ -140,7 +142,7 @@ export default function TokenBalance() {
 
         .token-balance-value {
           margin: 20px 0 0;
-          color: #29272f;
+          color: var(--foreground);
           font-size: clamp(24px, 4vw, 34px);
           font-weight: 800;
           letter-spacing: -1px;
@@ -149,7 +151,7 @@ export default function TokenBalance() {
 
         .token-balance-value span {
           margin-left: 9px;
-          color: #70569d;
+          color: var(--accent);
           font-size: 13px;
           font-weight: 600;
           letter-spacing: 0;
@@ -158,13 +160,13 @@ export default function TokenBalance() {
         .token-balance-message,
         .token-balance-error {
           margin: 20px 0 0;
-          color: #55535d;
+          color: var(--muted);
           font-size: 13px;
           line-height: 1.6;
         }
 
         .token-balance-error {
-          color: #9c3e3e;
+          color: var(--danger);
         }
 
         @media (max-width: 650px) {

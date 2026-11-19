@@ -1,4 +1,3 @@
-"use client";
 
 export default function TokenStyles() {
   return (
@@ -8,9 +7,10 @@ export default function TokenStyles() {
         max-width: 1050px;
         margin: 18px auto;
         padding: 28px;
-        border: 1px solid #e4e2e8;
-        border-radius: 14px;
-        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: var(--surface);
+        color: var(--foreground);
       }
 
       .send-tokens-heading {
@@ -19,7 +19,7 @@ export default function TokenStyles() {
 
       .send-tokens-eyebrow {
         margin: 0 0 7px;
-        color: #70569d;
+        color: var(--muted);
         font-family: "DM Mono", monospace;
         font-size: 9px;
         letter-spacing: 2px;
@@ -27,38 +27,41 @@ export default function TokenStyles() {
 
       .send-tokens-heading h2 {
         margin: 0;
-        color: #202024;
+        color: var(--foreground);
         font-size: 19px;
         font-weight: 800;
       }
 
       .send-tokens-heading > p:last-child {
         margin: 8px 0 0;
-        color: #777780;
+        color: var(--muted);
         font-size: 12px;
-        line-height: 1.6;
+        line-height: 1.7;
       }
 
       .send-tokens-notice,
       .send-tokens-error {
         margin: 14px 0;
         padding: 12px 14px;
-        border-radius: 8px;
-        background: #f5f4f7;
-        color: #55535d;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        background: var(--surface-raised);
+        color: var(--muted);
         font-size: 12px;
         line-height: 1.6;
         overflow-wrap: anywhere;
       }
 
       .send-tokens-warning {
-        background: #f7f2ec;
-        color: #855b2f;
+        border-color: var(--warning);
+        background: var(--surface-soft);
+        color: var(--foreground);
       }
 
       .send-tokens-error {
-        background: #fbf0f0;
-        color: #9c3e3e;
+        border-color: var(--danger);
+        background: var(--surface-raised);
+        color: var(--danger);
       }
 
       .send-tokens-form {
@@ -72,7 +75,7 @@ export default function TokenStyles() {
       }
 
       .send-tokens-field label {
-        color: #686570;
+        color: var(--muted);
         font-family: "DM Mono", monospace;
         font-size: 9px;
         letter-spacing: 1.3px;
@@ -82,19 +85,24 @@ export default function TokenStyles() {
         width: 100%;
         min-width: 0;
         padding: 13px 14px;
-        border: 1px solid #dedce3;
-        border-radius: 8px;
+        border: 1px solid var(--border);
+        border-radius: 7px;
         outline: none;
-        background: #fbfafc;
-        color: #29272f;
+        background: var(--background);
+        color: var(--foreground);
         font-family: "DM Mono", monospace;
         font-size: 12px;
+        transition: border-color 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      .send-tokens-field input::placeholder {
+        color: var(--muted-dark);
       }
 
       .send-tokens-field input:focus {
-        border-color: #8b75b3;
-        box-shadow: 0 0 0 3px
-          rgba(112, 86, 157, 0.12);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--focus-ring);
       }
 
       .send-tokens-amount {
@@ -102,9 +110,13 @@ export default function TokenStyles() {
         align-items: center;
         gap: 12px;
         padding-right: 14px;
-        border: 1px solid #dedce3;
-        border-radius: 8px;
-        background: #fbfafc;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        background: var(--background);
+      }
+
+      .send-tokens-amount:focus-within {
+        border-color: var(--accent);
       }
 
       .send-tokens-amount input {
@@ -118,14 +130,14 @@ export default function TokenStyles() {
 
       .send-tokens-amount span {
         flex-shrink: 0;
-        color: #70569d;
+        color: var(--accent);
         font-family: "DM Mono", monospace;
         font-size: 10px;
       }
 
       .send-tokens-validation {
         margin: 0;
-        color: #9c3e3e;
+        color: var(--danger);
         font-size: 11px;
       }
 
@@ -136,31 +148,31 @@ export default function TokenStyles() {
         justify-content: center;
         min-height: 45px;
         padding: 12px 16px;
-        border: 1px solid #70569d;
-        border-radius: 8px;
-        background: #70569d;
-        color: #fff;
+        border: 1px solid var(--accent);
+        border-radius: 7px;
+        background: var(--accent);
+        color: var(--background);
         font-family: "DM Mono", monospace;
         font-size: 10px;
-        font-weight: 500;
+        font-weight: 700;
         letter-spacing: 1px;
-        transition:
-          background 0.2s ease,
+        transition: background 0.2s ease,
           transform 0.2s ease;
       }
 
       .send-tokens-submit:hover:not(:disabled) {
         transform: translateY(-2px);
-        background: #59427f;
+        background: var(--accent-hover);
+        border-color: var(--accent-hover);
       }
 
       .send-tokens-submit:disabled {
         cursor: not-allowed;
-        opacity: 0.55;
+        opacity: 0.45;
       }
 
       .send-tokens-status {
-        color: #55535d;
+        color: var(--muted);
         font-size: 12px;
         line-height: 1.6;
         overflow-wrap: anywhere;
@@ -171,26 +183,26 @@ export default function TokenStyles() {
       }
 
       .send-tokens-status a {
-        color: #70569d;
+        color: var(--accent);
         font-weight: 600;
       }
 
       .send-tokens-success {
-        color: #477153;
+        color: var(--success);
       }
 
       .send-tokens-divider {
         height: 1px;
         margin: 30px 0;
-        background: #e9e6ed;
+        background: var(--border);
       }
 
       .send-tokens-allowance {
         margin-top: 24px;
         padding: 19px;
-        border: 1px solid #e4e2e8;
-        border-radius: 10px;
-        background: #fbfafc;
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        background: var(--surface-raised);
       }
 
       .send-tokens-allowance-heading {
@@ -202,7 +214,7 @@ export default function TokenStyles() {
 
       .send-tokens-allowance-heading h3 {
         margin: 0;
-        color: #202024;
+        color: var(--foreground);
         font-size: 13px;
         font-weight: 800;
       }
@@ -210,12 +222,19 @@ export default function TokenStyles() {
       .send-tokens-refresh {
         width: 34px;
         height: 34px;
-        border: 1px solid #dedce3;
+        border: 1px solid var(--border-strong);
         border-radius: 50%;
-        background: #fff;
-        color: #70569d;
+        background: var(--surface-soft);
+        color: var(--accent);
         font-size: 21px;
         cursor: pointer;
+        transition: background 0.2s ease,
+          transform 0.2s ease;
+      }
+
+      .send-tokens-refresh:hover:not(:disabled) {
+        background: var(--surface);
+        transform: rotate(45deg);
       }
 
       .send-tokens-refresh:disabled {
@@ -225,21 +244,21 @@ export default function TokenStyles() {
 
       .send-tokens-allowance-value {
         margin: 17px 0 0;
-        color: #29272f;
+        color: var(--foreground);
         font-size: clamp(23px, 4vw, 30px);
         font-weight: 800;
         overflow-wrap: anywhere;
       }
 
       .send-tokens-allowance-value span {
-        color: #70569d;
+        color: var(--muted);
         font-size: 13px;
       }
 
       .send-tokens-allowance > p:not(
           .send-tokens-allowance-value
         ) {
-        color: #686570;
+        color: var(--muted);
         font-size: 12px;
         line-height: 1.6;
         overflow-wrap: anywhere;
@@ -252,16 +271,17 @@ export default function TokenStyles() {
       .send-tokens-info {
         margin: 16px 0;
         padding: 14px 16px;
-        border-radius: 8px;
-        background: #f5f4f7;
-        color: #55535d;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        background: var(--surface-raised);
+        color: var(--muted);
         font-size: 12px;
         line-height: 1.6;
         overflow-wrap: anywhere;
       }
 
       .send-tokens-info strong {
-        color: #29272f;
+        color: var(--foreground);
       }
 
       .send-tokens-info p {
@@ -271,9 +291,10 @@ export default function TokenStyles() {
       .send-tokens-security {
         margin-top: 16px;
         padding: 14px 16px;
-        border-radius: 8px;
-        background: #f7f2ec;
-        color: #855b2f;
+        border: 1px solid var(--warning);
+        border-radius: 7px;
+        background: var(--surface-soft);
+        color: var(--foreground);
         font-size: 12px;
         line-height: 1.6;
       }
