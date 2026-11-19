@@ -1,7 +1,23 @@
-import type { Abi } from "viem";
 
-export const TIPJAR_ADDRESS =
-  "0x93F98CB57A26121d2bd9d3E5960154B31beD634b" as const;
+import { getAddress, type Abi, type Address } from "viem";
+
+// Read and validate contract addresses from environment variables
+function getContractAddress(
+  value: string | undefined,
+  variableName: string
+): Address {
+  if (!value) {
+    throw new Error(`${variableName} is not configured`);
+  }
+
+  return getAddress(value);
+}
+
+// TipJar contract
+export const TIPJAR_ADDRESS = getContractAddress(
+  process.env.NEXT_PUBLIC_TIPJAR_ADDRESS,
+  "NEXT_PUBLIC_TIPJAR_ADDRESS"
+);
 
 export const TIPJAR_ABI = [
   {
@@ -159,6 +175,77 @@ export const TIPJAR_ABI = [
     name: "withdraw",
     inputs: [],
     outputs: [],
+    stateMutability: "nonpayable",
+  },
+] as const satisfies Abi;
+
+// QuantekToken contract
+export const QUANTEK_TOKEN_ADDRESS = getContractAddress(
+  process.env.NEXT_PUBLIC_TOKEN_ADDRESS,
+  "NEXT_PUBLIC_TOKEN_ADDRESS"
+);
+
+export const QUANTEK_TOKEN_ABI = [
+  {
+    type: "function",
+    name: "balanceOf",
+    inputs: [{ name: "account", type: "address" }],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "symbol",
+    inputs: [],
+    outputs: [{ name: "", type: "string" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "decimals",
+    inputs: [],
+    outputs: [{ name: "", type: "uint8" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "transfer",
+    inputs: [
+      { name: "to", type: "address" },
+      { name: "value", type: "uint256" },
+    ],
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "approve",
+    inputs: [
+      { name: "spender", type: "address" },
+      { name: "value", type: "uint256" },
+    ],
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "nonpayable",
+  },
+  {
+    type: "function",
+    name: "allowance",
+    inputs: [
+      { name: "owner", type: "address" },
+      { name: "spender", type: "address" },
+    ],
+    outputs: [{ name: "", type: "uint256" }],
+    stateMutability: "view",
+  },
+  {
+    type: "function",
+    name: "transferFrom",
+    inputs: [
+      { name: "from", type: "address" },
+      { name: "to", type: "address" },
+      { name: "value", type: "uint256" },
+    ],
+    outputs: [{ name: "", type: "bool" }],
     stateMutability: "nonpayable",
   },
 ] as const satisfies Abi;

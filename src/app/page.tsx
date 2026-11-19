@@ -13,6 +13,8 @@ import { formatEther } from "viem";
 
 import TipForm from "../components/TipForm";
 import TipList from "../components/TipList";
+import TokenBalance from "../components/TokenBalance";
+import SendTokens from "../components/SendTokens";
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -202,6 +204,12 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* QUANTEK TOKEN BALANCE */}
+      <TokenBalance />
+
+      {/* SEND QUANTEK TOKENS */}
+      <SendTokens />
 
       {/* SEND A TIP */}
       <TipForm />
