@@ -196,7 +196,11 @@ export default function TipHistory() {
   }, [loadInitialHistory]);
 
   useEffect(() => {
-    void loadInitialHistory();
+    const timeoutId = window.setTimeout(() => {
+      void loadInitialHistory();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [loadInitialHistory]);
 
   return (
@@ -326,7 +330,7 @@ export default function TipHistory() {
 
           {!hasMore && !warning && !error && (
             <p className="end-message">
-              You've reached the beginning of Tip History.
+              You&apos;ve reached the beginning of Tip History.
             </p>
           )}
         </>

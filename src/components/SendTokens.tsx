@@ -30,7 +30,7 @@ export default function SendTokens() {
   const queryClient = useQueryClient();
   const refreshedTransactions = useRef<Set<string>>(new Set());
 
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const chainId = useChainId();
 
   const isSepolia = chainId === sepolia.id;

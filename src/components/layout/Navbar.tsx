@@ -1,18 +1,19 @@
 
 "use client";
 
+import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Navbar() {
   return (
     <header className="navbar">
-      <a href="/" className="brand">
+      <Link href="/" className="brand">
         <span className="brand-icon">T</span>
 
         <span className="brand-name">
           TIPJAR<span className="brand-dot">.</span>
         </span>
-      </a>
+      </Link>
 
       <div className="nav-right">
         <div className="network-label">

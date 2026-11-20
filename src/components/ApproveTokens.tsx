@@ -47,7 +47,6 @@ export default function ApproveTokens() {
 
   const {
     data: decimals,
-    error: decimalsError,
     isError: isDecimalsError,
   } = useReadContract({
     address: QUANTEK_TOKEN_ADDRESS,

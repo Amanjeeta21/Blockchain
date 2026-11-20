@@ -7,6 +7,7 @@ import { WagmiProvider } from "wagmi";
 import "@rainbow-me/rainbowkit/styles.css";
 
 import { config } from "@/lib/wagmi";
+import { VerifiedAddressProvider } from "../components/VerifiedAddressContext";
 
 export function Providers({
   children,
@@ -18,7 +19,9 @@ export function Providers({
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>{children}</RainbowKitProvider>
+        <RainbowKitProvider>
+          <VerifiedAddressProvider>{children}</VerifiedAddressProvider>
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

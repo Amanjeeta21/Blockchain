@@ -52,7 +52,6 @@ export default function TransferFrom() {
 
   const {
     data: decimals,
-    error: decimalsError,
     isError: isDecimalsError,
   } = useReadContract({
     address: QUANTEK_TOKEN_ADDRESS,
@@ -219,7 +218,7 @@ export default function TransferFrom() {
           <h2>TRANSFER FROM</h2>
 
           <p>
-            Pull authorised QTK tokens from an owner's
+            Pull authorised QTK tokens from an owner&apos;s
             wallet using your connected spender account.
           </p>
         </div>
@@ -388,7 +387,7 @@ export default function TransferFrom() {
             </p>
           ) : !isFromAddressValid ? (
             <p>
-              Enter the owner's wallet address.
+              Enter the owner&apos;s wallet address.
             </p>
           ) : isAllowanceLoading ? (
             <p>
@@ -466,7 +465,7 @@ export default function TransferFrom() {
             receipt?.status === "success" && (
               <p className="send-tokens-success">
                 transferFrom confirmed on Sepolia.
-                Tokens were pulled from the owner's
+                Tokens were pulled from the owner&apos;s
                 wallet.
               </p>
             )}
