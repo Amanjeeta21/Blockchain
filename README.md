@@ -252,6 +252,16 @@ TipJar uses Sign-In with Ethereum (SIWE) to authenticate users through their wal
 
 The application uses Wagmi and Viem to communicate with Ethereum smart contracts.
 
+## Deployed Sepolia Contracts
+
+The application is configured to use these Ethereum Sepolia deployments
+(chain ID `11155111`):
+
+| Contract | Address | Explorer |
+|---|---|---|
+| TipJar | `0x93F98CB57A26121d2bd9d3E5960154B31beD634b` | [Etherscan](https://sepolia.etherscan.io/address/0x93F98CB57A26121d2bd9d3E5960154B31beD634b) |
+| QuantekToken (QTK) | `0x6F4400A45C7BCAa127F865b2EC86a5bFeD63a23a` | [Etherscan](https://sepolia.etherscan.io/address/0x6F4400A45C7BCAa127F865b2EC86a5bFeD63a23a) |
+
 ### ETH Tipping
 
 A typical tipping transaction involves:
