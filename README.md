@@ -303,20 +303,11 @@ TipJar uses Sign-In with Ethereum to authenticate users through their Ethereum w
 
 ### Authentication Workflow
 
-1. The user selects Sign In.
-2. The user provides their public wallet address.
-3. The application checks the account flow.
-4. The user proceeds to wallet connection.
-5. The frontend requests an authentication nonce from the server.
-6. The server generates a random nonce.
-7. The nonce is stored in a short-lived HttpOnly cookie.
-8. The frontend constructs the SIWE message.
-9. The message contains the domain, wallet address, chain ID, nonce, and issued-at information.
-10. The user signs the message through their wallet.
-11. The signed message and signature are sent to the verification API.
-12. The server validates the SIWE message and signature.
-13. The nonce is checked to prevent replay attacks.
-14. Successful verification allows the user to continue.
+1. On the home page, select **Connect Wallet** and choose a wallet. Switch to Sepolia if prompted.
+2. TipJar requests a one-time nonce from the server, which stores it in a short-lived HttpOnly cookie.
+3. Sign the SIWE message with the connected wallet. The message includes the domain, wallet address, chain ID, nonce, and issue time.
+4. The server verifies the signature and consumes the nonce.
+5. The same page displays the verified wallet address and enables the tip and token tools. Disconnecting or changing accounts requires a new signature.
 
 ### Security Properties
 

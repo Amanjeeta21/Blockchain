@@ -3,11 +3,14 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useState,
   type Dispatch,
   type ReactNode,
   type SetStateAction,
 } from "react";
+import { useConfig } from "wagmi";
+import { watchAccount } from "wagmi/actions";
 
 type VerifiedAddressContextValue = {
   verifiedAddress: string;
@@ -21,6 +24,22 @@ export function VerifiedAddressProvider({
   children,
 }: Readonly<{ children: ReactNode }>) {
   const [verifiedAddress, setVerifiedAddress] = useState("");
+  const config = useConfig();
+
+  useEffect(
+    () =>
+      watchAccount(config, {
+        onChange(account) {
+          setVerifiedAddress((previous) =>
+            account.isConnected &&
+            account.address?.toLowerCase() === previous.toLowerCase()
+              ? previous
+              : "",
+          );
+        },
+      }),
+    [config],
+  );
 
   return (
     <VerifiedAddressContext.Provider

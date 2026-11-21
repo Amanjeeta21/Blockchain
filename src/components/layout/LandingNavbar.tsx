@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-
-import SignInButton from "../SignInButton";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useAccount } from "wagmi";
 
 export default function LandingNavbar() {
+  const { isConnected } = useAccount();
+
   return (
     <header className="navbar landing-navbar">
       <Link href="/" className="brand" aria-label="TipJar home">
@@ -14,7 +16,11 @@ export default function LandingNavbar() {
         </span>
       </Link>
 
-      <SignInButton />
+      {isConnected && (
+        <div className="nav-right">
+          <ConnectButton showBalance={false} chainStatus="icon" />
+        </div>
+      )}
     </header>
   );
 }

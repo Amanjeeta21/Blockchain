@@ -327,7 +327,22 @@ a:focus-visible {
   margin-top: 30px;
 }
 
-.landing-action-note,
+.verified-wallet {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  font-size: 14px;
+}
+
+.verified-wallet span {
+  color: var(--muted);
+}
+
+.verified-wallet strong {
+  font-family: "DM Mono", monospace;
+  overflow-wrap: anywhere;
+}
+
 .landing-gas-note {
   color: var(--muted-dark);
   font-size: 12px;
@@ -507,130 +522,6 @@ a:focus-visible {
 
 .landing-footer-brand span {
   color: var(--muted-dark);
-}
-
-.connect-page {
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 34px;
-  padding: 40px 20px;
-}
-
-.connect-card {
-  width: min(100%, 520px);
-  padding: 36px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: rgba(41, 42, 44, 0.72);
-}
-
-.connect-card h1 {
-  margin: 17px 0 12px;
-  font-size: clamp(26px, 5vw, 36px);
-  line-height: 1.16;
-  letter-spacing: -1px;
-}
-
-.connect-card-description {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.7;
-}
-
-.connect-address {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 25px 0 17px;
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.connect-address span {
-  color: var(--muted-dark);
-  font-family: "DM Mono", monospace;
-  font-size: 9px;
-  letter-spacing: 1px;
-}
-
-.connect-address strong {
-  font-family: "DM Mono", monospace;
-  font-size: 12px;
-}
-
-.connect-notice {
-  margin: 0 0 14px;
-  color: var(--warning);
-  font-size: 12px;
-  line-height: 1.6;
-}
-
-.connect-primary-button,
-.connect-secondary-button {
-  width: 100%;
-  min-height: 46px;
-  border-radius: 8px;
-  font-weight: 700;
-}
-
-.connect-primary-button {
-  border: 1px solid #D0D0CE;
-  background: #E5E5E3;
-  color: #292A2C;
-}
-
-.connect-primary-button:hover:not(:disabled) {
-  background: #F1F1EF;
-}
-
-.connect-primary-button:disabled {
-  cursor: wait;
-  opacity: 0.65;
-}
-
-.connect-secondary-button {
-  margin-top: 10px;
-  border: 1px solid var(--border-strong);
-  background: transparent;
-  color: var(--foreground);
-}
-
-.connect-auth-actions .siwe-signin {
-  width: 100%;
-}
-
-.connect-auth-actions .siwe-signin-button-primary {
-  width: 100%;
-}
-
-.connect-network-status {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 18px;
-  color: var(--muted-dark);
-  font-family: "DM Mono", monospace;
-  font-size: 9px;
-  letter-spacing: 1px;
-}
-
-.connect-signature-note {
-  margin: 19px 0 0;
-  color: var(--muted-dark);
-  font-size: 11px;
-  line-height: 1.6;
-  text-align: center;
-}
-
-.tipjar-auth-message {
-  padding: 30px 0;
-  color: var(--muted);
 }
 
 /* RainbowKit buttons */
@@ -1372,10 +1263,6 @@ a:focus-visible {
     flex-direction: column;
     justify-content: center;
     padding: 16px 0;
-  }
-
-  .connect-card {
-    padding: 25px 20px;
   }
 
   .page {

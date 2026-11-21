@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useChainModal, useConnectModal } from "@rainbow-me/rainbowkit";
 import {
   useAccount,
-  useChainId,
+  useConfig,
   useSignMessage,
 } from "wagmi";
+import { getAccount } from "wagmi/actions";
 import { sepolia } from "wagmi/chains";
 import type { Address } from "viem";
 
@@ -19,21 +19,13 @@ type ApiResponse = {
   error?: string;
 };
 
-type SignInButtonProps = {
-  label?: string;
-  variant?: "default" | "primary";
-};
-
-export default function SignInButton({
-  label = "Sign In",
-  variant = "default",
-}: SignInButtonProps) {
-  const { address, isConnected } = useAccount();
-  const chainId = useChainId();
+export default function SignInButton() {
+  const { address, chainId, isConnected, status } = useAccount();
+  const config = useConfig();
   const { signMessageAsync } = useSignMessage();
   const { openConnectModal, connectModalOpen } = useConnectModal();
+  const { openChainModal } = useChainModal();
   const { setVerifiedAddress } = useVerifiedAddress();
-  const router = useRouter();
   const [error, setError] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [isSelectingWallet, setIsSelectingWallet] = useState(false);
@@ -41,7 +33,8 @@ export default function SignInButton({
   const connectModalWasOpened = useRef(false);
   const signInInProgress = useRef(false);
 
-  const buttonClassName = `siwe-signin-button${variant === "primary" ? " siwe-signin-button-primary" : ""}`;
+  const needsSepolia = isConnected && chainId !== sepolia.id;
+  const isConnecting = status === "connecting" || status === "reconnecting";
 
   const authenticate = useCallback(
     async (signingAddress: Address) => {
@@ -52,12 +45,6 @@ export default function SignInButton({
       setError("");
 
       try {
-        if (chainId !== sepolia.id) {
-          throw new Error(
-            "Switch your wallet to Ethereum Sepolia before signing in.",
-          );
-        }
-
         const nonceResponse = await fetch("/api/siwe/nonce", {
           cache: "no-store",
         });
@@ -83,7 +70,10 @@ export default function SignInButton({
           `Issued At: ${new Date().toISOString()}`,
         ].join("\n");
 
-        const signature = await signMessageAsync({ message });
+        const signature = await signMessageAsync({
+          account: signingAddress,
+          message,
+        });
         const verifyResponse = await fetch("/api/siwe/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -102,8 +92,17 @@ export default function SignInButton({
           );
         }
 
+        const currentAccount = getAccount(config);
+
+        if (
+          !currentAccount.isConnected ||
+          currentAccount.address?.toLowerCase() !== signingAddress.toLowerCase() ||
+          currentAccount.chainId !== sepolia.id
+        ) {
+          throw new Error("Your wallet or network changed. Please sign in again.");
+        }
+
         setVerifiedAddress(verifyPayload.address);
-        router.push("/connect");
       } catch (signInError) {
         if (
           signInError instanceof Error &&
@@ -124,7 +123,7 @@ export default function SignInButton({
         setIsSigningIn(false);
       }
     },
-    [chainId, router, setVerifiedAddress, signMessageAsync],
+    [config, setVerifiedAddress, signMessageAsync],
   );
 
   useEffect(() => {
@@ -136,7 +135,9 @@ export default function SignInButton({
       signAfterConnection.current = false;
       connectModalWasOpened.current = false;
       setIsSelectingWallet(false);
-      void authenticate(address);
+      if (chainId === sepolia.id) {
+        void authenticate(address);
+      }
       return;
     }
 
@@ -148,17 +149,27 @@ export default function SignInButton({
     if (
       signAfterConnection.current &&
       connectModalWasOpened.current &&
-      !isConnected
+      !isConnected &&
+      !isConnecting
     ) {
       signAfterConnection.current = false;
       connectModalWasOpened.current = false;
       setIsSelectingWallet(false);
       setError("Wallet selection was cancelled. You can try again.");
     }
-  }, [address, authenticate, connectModalOpen, isConnected]);
+  }, [address, authenticate, chainId, connectModalOpen, isConnected, isConnecting]);
 
   function handleSignIn() {
     setError("");
+
+    if (needsSepolia) {
+      if (openChainModal) {
+        openChainModal();
+      } else {
+        setError("Switch to Ethereum Sepolia in your wallet to sign in.");
+      }
+      return;
+    }
 
     if (isConnected && address) {
       void authenticate(address);
@@ -179,16 +190,22 @@ export default function SignInButton({
   return (
     <div className="siwe-signin">
       <button
-        className={buttonClassName}
+        className="siwe-signin-button siwe-signin-button-primary"
         type="button"
         onClick={handleSignIn}
-        disabled={isSigningIn || isSelectingWallet}
+        disabled={isSigningIn || isSelectingWallet || isConnecting}
       >
-        {isSelectingWallet
-          ? "Select Wallet..."
-          : isSigningIn
-            ? "Signing in..."
-            : label}
+        {isConnecting
+          ? "Connecting..."
+          : isSelectingWallet
+            ? "Select Wallet..."
+            : isSigningIn
+              ? "Signing in..."
+              : needsSepolia
+                ? "Switch to Sepolia"
+                : isConnected
+                  ? "Sign In With Ethereum"
+                  : "Connect Wallet"}
       </button>
       {error && (
         <span className="siwe-signin-error" role="alert">

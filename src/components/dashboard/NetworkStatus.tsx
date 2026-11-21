@@ -3,14 +3,12 @@
 
 import {
   useAccount,
-  useChainId,
   useSwitchChain,
 } from "wagmi";
 import { sepolia } from "wagmi/chains";
 
 export default function NetworkStatus() {
-  const { isConnected } = useAccount();
-  const chainId = useChainId();
+  const { isConnected, chainId } = useAccount();
 
   const { switchChain, isPending: isSwitching } =
     useSwitchChain();
