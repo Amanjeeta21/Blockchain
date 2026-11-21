@@ -56,6 +56,8 @@ export default function TipForm() {
       refreshedTransaction.current !== hash
     ) {
       refreshedTransaction.current = hash;
+      setMessage("");
+      setAmount("");
       void queryClient.invalidateQueries();
     }
   }, [hash, isSuccess, receipt?.status, queryClient]);
